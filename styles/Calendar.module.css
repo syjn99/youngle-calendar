@@ -1,0 +1,27 @@
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, minmax(100px, auto));
+  gap: 1px;
+}
+
+.prev {
+
+}
+
+.date {
+  text-align: center;
+  border: 1px solid black;
+}
+
+.curr {
+
+}
+
+.schedule {
+  background-color: aqua;
+}
+
+.next {
+  
+}

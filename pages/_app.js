@@ -1,7 +1,13 @@
+import Layout from '../components/Layout'
+import { wrapper } from '../store/store'
 import '../styles/globals.css'
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+function App({ Component, pageProps }) {
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  )
 }
 
-export default MyApp
+export default wrapper.withRedux(App)

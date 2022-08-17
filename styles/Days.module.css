@@ -1,0 +1,16 @@
+.Days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.Days :first-child {
+  color:red;
+}
+
+.Days :last-child {
+  color: blue;
+}
+
+.eachDay {
+  text-align: center;
+}
