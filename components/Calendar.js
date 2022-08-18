@@ -4,7 +4,7 @@ import styles from "../styles/Calendar.module.css"
 
 export const Calendar = () => {
   const { year, month } = useSelector(state => state.currentMonth)
-  const yearMonth = [year, month + 1].join("-")
+  const yearMonth = (new Date(year, month + 1).toISOString().substring(0, 7))
   const schedules = (useSelector(state => state.schedules.dateMap[yearMonth]) || {})
 
   const { prevMonth, currentMonth, nextMonth } = calculateMonth()
@@ -29,8 +29,6 @@ export const Calendar = () => {
       {date === 1 ? `${(month + 1) % 12 + 1}월 1일` : date}
     </div>
   ))
-
-  console.log(new Date(2022, -1, 1))
 
   return (
     <div className={styles.calendar}>

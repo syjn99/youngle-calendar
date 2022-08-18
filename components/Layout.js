@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux'
 import Days from './Days'
 import { Navbar } from './Navbar'
 
