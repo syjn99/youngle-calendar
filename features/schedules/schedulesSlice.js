@@ -3,7 +3,7 @@ import { add } from 'date-fns'
 
 const schedulesList = [
   {
-    id: 1,
+    id: "1",
     title: "first schedule",
     description: "this is first schedule!!",
     time: {
@@ -15,7 +15,7 @@ const schedulesList = [
     },
   },
   {
-    id: 2,
+    id: "2",
     title: "second schedule",
     description: "haha",
     time: {
@@ -27,7 +27,7 @@ const schedulesList = [
     },
   },
   {
-    id: 3,
+    id: "3",
     title: "third schedule",
     description: "this is third schedule!!",
     time: {
@@ -42,11 +42,11 @@ const schedulesList = [
 
 const dateMap = {
   "2022-08": {
-    "15": [schedulesList[1]],
-    "17": [schedulesList[0]],
+    "15": ["2"],
+    "17": ["1"],
   },
   "2022-11": {
-    "17": [schedulesList[2]]
+    "17": ["3"]
   }
 }
 
@@ -66,7 +66,6 @@ export const schedulesSlice = createSlice({
         let [startTime, endTime] = [add(newSchedule.time.startTime, { hours: 9 }), add(newSchedule.time.endTime, { hours: 9 })]
         while (startTime <= endTime) {
           const yyyymm = startTime.toISOString().substring(0, 7)
-          console.log(startTime.toISOString())
           if (!state.dateMap[yyyymm]) {
             console.log("no datemap", startTime.toISOString())
             state.dateMap[yyyymm] = {}
@@ -74,7 +73,7 @@ export const schedulesSlice = createSlice({
           if (!state.dateMap[yyyymm][startTime.getDate()]) {
             state.dateMap[yyyymm][startTime.getDate()] = []
           }
-          state.dateMap[yyyymm][startTime.getDate()].push(newSchedule)
+          state.dateMap[yyyymm][startTime.getDate()].push(newSchedule.id)
           startTime = add(startTime, { days: 1 })
         }
       },
@@ -94,10 +93,59 @@ export const schedulesSlice = createSlice({
           },
         }
       }
+    },
+    scheduleDeleted(state, action) {
+      const index = state.schedulesList.findIndex(schedule => {
+        return schedule?.id === action.payload
+      })
+      state.schedulesList[index] = null
+    },
+    scheduleEdited: {
+      reducer(state, action) {
+        console.log(action)
+        const index = state.schedulesList.findIndex(schedule => {
+          return schedule?.id === action.payload.originalId
+        })
+        state.schedulesList[index] = null
+        const count = state.schedulesList.push(action.payload.edittedSchedule)
+        const newSchedule = state.schedulesList[count - 1]
+        let [startTime, endTime] = [add(newSchedule.time.startTime, { hours: 9 }), add(newSchedule.time.endTime, { hours: 9 })]
+        while (startTime <= endTime) {
+          const yyyymm = startTime.toISOString().substring(0, 7)
+          if (!state.dateMap[yyyymm]) {
+            console.log("no datemap", startTime.toISOString())
+            state.dateMap[yyyymm] = {}
+          }
+          if (!state.dateMap[yyyymm][startTime.getDate()]) {
+            state.dateMap[yyyymm][startTime.getDate()] = []
+          }
+          state.dateMap[yyyymm][startTime.getDate()].push(newSchedule.id)
+          startTime = add(startTime, { days: 1 })
+        }
+      },
+      prepare(id, title, startDate, endDate, description) {
+        return {
+          payload: {
+            edittedSchedule: {
+              id: nanoid(),
+              title,
+              description,
+              time: {
+                isDetailSet: false,
+                startTime: startDate,
+                endTime: endDate,
+              },
+              repeat: {
+              },
+            },
+            originalId: id,
+          },
+        }
+      }
     }
   }
 })
 
-export const { scheduleAdded } = schedulesSlice.actions
+export const { scheduleAdded, scheduleDeleted, scheduleEdited } = schedulesSlice.actions
 
 export default schedulesSlice.reducer
