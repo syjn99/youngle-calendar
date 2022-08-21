@@ -26,10 +26,14 @@ export const currentMonthSlice = createSlice({
         state.year++
         state.month = 0
       }
+    },
+    todayMonth(state, action) {
+      state.year = today.getFullYear()
+      state.month = today.getMonth()
     }
   },
 })
 
-export const { prevMonth, nextMonth } = currentMonthSlice.actions
+export const { prevMonth, nextMonth, todayMonth } = currentMonthSlice.actions
 
 export default currentMonthSlice.reducer
