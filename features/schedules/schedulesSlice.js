@@ -62,7 +62,6 @@ export const schedulesSlice = createSlice({
     scheduleAdded: {
       reducer(state, action) {
         const count = state.schedulesList.push(action.payload)
-
         const newSchedule = state.schedulesList[count - 1]
         let [startTime, endTime] = [add(newSchedule.time.startTime, { hours: 9 }), add(newSchedule.time.endTime, { hours: 9 })]
         while (startTime <= endTime) {

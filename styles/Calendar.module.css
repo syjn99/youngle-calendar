@@ -25,3 +25,12 @@
 .next {
   
 }
+
+.today {
+  width: 10px;
+  height:10px;
+  background-color: red;
+  color: white;
+  border-radius: 100%;
+  padding:5px;
+}
