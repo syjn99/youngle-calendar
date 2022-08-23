@@ -64,7 +64,13 @@ export const schedulesSlice = createSlice({
         const count = state.schedulesList.push(action.payload)
         const newSchedule = state.schedulesList[count - 1]
         let [startTime, endTime] = [add(newSchedule.time.startTime, { hours: 9 }), add(newSchedule.time.endTime, { hours: 9 })]
+        let cnt = 0
         while (startTime <= endTime) {
+          if (cnt !== 0 && startTime.getDay() !== 0) {
+            startTime = add(startTime, { days: 1 })
+            cnt = cnt + 1
+            continue
+          }
           const yyyymm = startTime.toISOString().substring(0, 7)
           if (!state.dateMap[yyyymm]) {
             console.log("no datemap", startTime.toISOString())
@@ -75,6 +81,7 @@ export const schedulesSlice = createSlice({
           }
           state.dateMap[yyyymm][startTime.getDate()].push(newSchedule.id)
           startTime = add(startTime, { days: 1 })
+          cnt = cnt + 1
         }
       },
       prepare(title, startDate, endDate, description) {

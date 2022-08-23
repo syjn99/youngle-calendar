@@ -1,4 +1,4 @@
-import { add } from 'date-fns'
+import { add, differenceInDays, sub } from 'date-fns'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { calculateMonth } from '../modules/calculateMonth'
@@ -11,7 +11,7 @@ import ScheduleDetail from './ScheduleDetail'
 
 // define commonly used styles
 const STYLE_DATE = "border text-center transition ease-in-out hover:bg-gray-200"
-const STYLE_SCHEDULE_CURR = 'bg-indigo-500 text-white text-sm mb-px mr-2 rounded hover:cursor-pointer hover:bg-indigo-700'
+const STYLE_SCHEDULE_CURR = 'absolute inline-block bg-indigo-500 text-white text-sm mb-px mr-2 left-0 rounded hover:cursor-pointer hover:bg-indigo-700'
 const STYLE_SCHEDULE_NOT_CURR = 'bg-indigo-300 text-white text-sm mb-px mr-2 rounded hover:cursor-pointer hover:bg-indigo-500'
 
 export const Calendar = () => {
@@ -102,8 +102,28 @@ export const Calendar = () => {
             if (!schedule) {
               return
             }
+            console.log(id)
+            console.log(new Date(id), schedule.time.endTime)
+            let dif = differenceInDays(schedule.time.endTime, sub(new Date(id), { hours: 9 }))
+            console.log(schedule.time.endTime, sub(new Date(id), { hours: 9 }))
+            console.log(dif)
+            const max = 7 - (new Date(id).getDay())
+            console.log(dif, max)
+            if (dif > max) {
+              dif = max
+            } else if (dif === 0) {
+              dif = 1
+            } else {
+              dif = dif + 1
+            }
+            console.log("after", dif)
+
+            const styles = { divClass: "absolute bg-indigo-500 text-white text-sm mb-px mr-2 rounded hover:cursor-pointer hover:bg-indigo-700" }
+            const width = `w-${dif}/7`
+            const left = `left-${new Date(id).getDay()}/7`
+
             return (
-              <div id={schedule.id} className={`${STYLE_SCHEDULE_CURR}`} key={schedule.id} onClick=
+              <div id={schedule.id} className={`${styles.divClass} ${width} ${left} shrin`} key={schedule.id} onClick=
                 {onScheduleClicked}>{schedule.title}</div>
             )
           }) : ""
@@ -166,6 +186,7 @@ export const Calendar = () => {
           <ScheduleDetail scheduleId={scheduleId} closeModal={closeDetailModal} />
         </Modal>
       )}
+      <span className='bg-black text-white inline-block w-3/7 absolute left-1/7'>hi</span>
     </>
   )
 }

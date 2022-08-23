@@ -4,13 +4,14 @@ import { useState } from 'react'
 import { formatDate } from '../modules/formatDate'
 import { useDispatch } from 'react-redux'
 import { scheduleAdded } from '../features/schedules/schedulesSlice'
-import { add } from 'date-fns'
+import { add, sub } from 'date-fns'
 
 const AddScheduleForm = ({ targetDate, closeModal }) => {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [startDate, setStartDate] = useState(targetDate)
-  const [endDate, setEndDate] = useState(targetDate)
+
+  const [startDate, setStartDate] = useState(new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()))
+  const [endDate, setEndDate] = useState(new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()))
   const [detailTime, setDetailTime] = useState(false)
   const [displayedTime, setDisplayedTime] = useState(`${formatDate(startDate)} - ${formatDate(endDate)}`)
 
@@ -27,7 +28,7 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
 
   const onEndDateChange = (e) => {
     const newEndDate = new Date(e.target.value)
-    setEndDate(newEndDate)
+    setEndDate(sub(newEndDate, { hours: 9 }))
     setDisplayedTime(`${formatDate(startDate)} - ${formatDate(newEndDate)}`)
   }
 
@@ -69,7 +70,7 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
               type="date"
               id='startDate'
               value={add(startDate, { hours: 9 }).toISOString().substring(0, 10)}
-              max={endDate.toISOString().substring(0, 10)}
+              max={add(endDate, { hours: 9 }).toISOString().substring(0, 10)}
               onChange={onStartDateChange}
             />
           </label>
@@ -79,7 +80,7 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
               type="date"
               id='endDate'
               value={add(endDate, { hours: 9 }).toISOString().substring(0, 10)}
-              min={startDate.toISOString().substring(0, 10)}
+              min={add(startDate, { hours: 9 }).toISOString().substring(0, 10)}
               onChange={onEndDateChange}
             />
           </label>
