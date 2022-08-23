@@ -11,8 +11,8 @@ import ScheduleDetail from './ScheduleDetail'
 
 // define commonly used styles
 const STYLE_DATE = "border text-center transition ease-in-out hover:bg-gray-200"
-const STYLE_SCHEDULE_CURR = 'bg-indigo-500 text-white text-sm mb-px mx-px rounded hover:cursor-pointer hover:bg-indigo-700'
-const STYLE_SCHEDULE_NOT_CURR = 'bg-indigo-300 text-white text-sm mb-px mx-px rounded hover:cursor-pointer hover:bg-indigo-500'
+const STYLE_SCHEDULE_CURR = 'bg-indigo-500 text-white text-sm mb-px mr-2 rounded hover:cursor-pointer hover:bg-indigo-700'
+const STYLE_SCHEDULE_NOT_CURR = 'bg-indigo-300 text-white text-sm mb-px mr-2 rounded hover:cursor-pointer hover:bg-indigo-500'
 
 export const Calendar = () => {
   // fetch currentMonth to render the calendar, and schedulesList to refer schedules to render
@@ -49,6 +49,12 @@ export const Calendar = () => {
     setModalOpen(!modalOpen)
     setId(e.target.id ? e.target.id : e.target.parentElement.id)
   }
+  const onScheduleClicked = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDetailOpen(!detailOpen)
+    setScheduleId(e.target.id)
+  }
 
   const renderedPrevMonth = prevMonth.map(function (date) {
     const isToday = Number.isInteger(date)
@@ -69,7 +75,7 @@ export const Calendar = () => {
               return
             }
             return (
-              <div className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} > {schedule.title}</div>
+              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked} > {schedule.title}</div>
             )
           }) : ""
         }
@@ -98,12 +104,7 @@ export const Calendar = () => {
             }
             return (
               <div id={schedule.id} className={`${STYLE_SCHEDULE_CURR}`} key={schedule.id} onClick=
-                {(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setDetailOpen(!detailOpen)
-                  setScheduleId(e.target.id)
-                }}>{schedule.title}</div>
+                {onScheduleClicked}>{schedule.title}</div>
             )
           }) : ""
         }
@@ -131,7 +132,7 @@ export const Calendar = () => {
               return
             }
             return (
-              <div className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} > {schedule.title}</div>
+              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked}> {schedule.title}</div>
             )
           }) : ""
         }
