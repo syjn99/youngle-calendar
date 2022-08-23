@@ -101,10 +101,8 @@ export const Calendar = () => {
             }
 
             return (
-              <div className={`absolute ${width[dif]}`}>
-                <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked} >
-                  {schedule.title}
-                </div>
+              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR} absolute ${width[dif]}`} key={schedule.id} onClick={onScheduleClicked} >
+                {schedule.title}
               </div>
             )
           }) : ""
@@ -129,33 +127,36 @@ export const Calendar = () => {
         </div>
         {
           schedules[date] ? schedules[date].map(scheduleId => {
-            const day = (new Date(id)).getDay()
-
             const schedule = schedulesList.find(schedule => schedule?.id === scheduleId)
             if (!schedule) {
               return
             }
 
             let dif = differenceInDays(add(schedule.time.endTime, { days: 1 }), sub(new Date(id), { hours: 9 }))
+            const day = (new Date(id)).getDay()
             if (dif > 6) {
               dif = 7 - day
               for (let index = 0; index < dif; index++) {
-                daysList.push((new Date(id).getDate()) + index)
+                if (!daysList.includes(date)) {
+                  daysList.push((new Date(id).getDate()) + index)
+                }
               }
             } else if (dif === 0) {
               dif = 1
+            } else {
+              for (let index = 0; index < dif; index++) {
+                if (!daysList.includes(date)) {
+                  daysList.push((new Date(id).getDate()) + index)
+                }
+              }
             }
 
             const isSingle = (dif === 1 && daysList.includes(date)) ? true : false
 
             return (
-              <>
-                <div className={isSingle ? 'relative top-em' : `absolute ${width[dif]}`}>
-                  <div id={schedule.id} className={`${STYLE_SCHEDULE_CURR}`} key={schedule.id + date} onClick={onScheduleClicked}>
-                    {schedule.title}
-                  </div>
-                </div>
-              </>
+              <div id={schedule.id} className={`${STYLE_SCHEDULE_CURR} ${isSingle ? 'relative top-em' : `absolute ${width[dif]}`}`} key={schedule.id + date} onClick={onScheduleClicked}>
+                {schedule.title}
+              </div>
             )
           }) : ""
         }
@@ -192,10 +193,8 @@ export const Calendar = () => {
             }
 
             return (
-              <div className={`absolute ${width[dif]}`}>
-                <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked} >
-                  {schedule.title}
-                </div>
+              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR} absolute ${width[dif]}`} key={schedule.id} onClick={onScheduleClicked} >
+                {schedule.title}
               </div>
             )
           }) : ""
