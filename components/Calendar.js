@@ -185,7 +185,6 @@ export const Calendar = () => {
           <ScheduleDetail scheduleId={scheduleId} closeModal={closeDetailModal} />
         </Modal>
       )}
-      <span className='bg-black text-white inline-block w-3/7 absolute left-1/7'>hi</span>
     </>
   )
 }
