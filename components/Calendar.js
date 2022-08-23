@@ -50,6 +50,13 @@ export const Calendar = () => {
     setId(e.target.id ? e.target.id : e.target.parentElement.id)
   }
 
+  const onScheduleClicked = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDetailOpen(!detailOpen)
+    setScheduleId(e.target.id)
+  }
+
   const renderedPrevMonth = prevMonth.map(function (date) {
     const isToday = Number.isInteger(date)
     if (!isToday) {
@@ -69,7 +76,7 @@ export const Calendar = () => {
               return
             }
             return (
-              <div className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} > {schedule.title}</div>
+              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked} > {schedule.title}</div>
             )
           }) : ""
         }
@@ -96,34 +103,10 @@ export const Calendar = () => {
             if (!schedule) {
               return
             }
-            console.log(id)
-            console.log(new Date(id), schedule.time.endTime)
-            let dif = differenceInDays(schedule.time.endTime, sub(new Date(id), { hours: 9 }))
-            console.log(schedule.time.endTime, sub(new Date(id), { hours: 9 }))
-            console.log(dif)
-            const max = 7 - (new Date(id).getDay())
-            console.log(dif, max)
-            if (dif > max) {
-              dif = max
-            } else if (dif === 0) {
-              dif = 1
-            } else {
-              dif = dif + 1
-            }
-            console.log("after", dif)
-
-            const styles = { divClass: "absolute bg-indigo-500 text-white text-sm mb-px mr-2 rounded hover:cursor-pointer hover:bg-indigo-700" }
-            const width = `w-${dif}/7`
-            const left = `left-${new Date(id).getDay()}/7`
 
             return (
               <div id={schedule.id} className={`${STYLE_SCHEDULE_CURR}`} key={schedule.id} onClick=
-                {(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setDetailOpen(!detailOpen)
-                  setScheduleId(e.target.id)
-                }}>{schedule.title}</div>
+                {onScheduleClicked}>{schedule.title}</div>
             )
           }) : ""
         }
@@ -151,7 +134,7 @@ export const Calendar = () => {
               return
             }
             return (
-              <div className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} > {schedule.title}</div>
+              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked} > {schedule.title}</div>
             )
           }) : ""
         }
