@@ -1,5 +1,5 @@
 import { add, differenceInDays, sub } from 'date-fns'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { calculateMonth } from '../modules/calculateMonth'
 import targetDate from '../modules/targetDate'
@@ -9,10 +9,28 @@ import Modal from './Modal'
 import { Navbar } from './Navbar'
 import ScheduleDetail from './ScheduleDetail'
 
+const width = [
+  "w-0/7",
+  "w-1/7",
+  "w-2/7",
+  "w-3/7",
+  "w-4/7",
+  "w-5/7",
+  "w-6/7",
+  "w-7/7",
+]
+
+let daysList = []
+
+let scheduleId = null
+
 // define commonly used styles
 const STYLE_DATE = "border text-center transition ease-in-out hover:bg-gray-200"
 const STYLE_SCHEDULE_CURR = 'bg-indigo-500 text-white text-sm mb-px mx-px rounded hover:cursor-pointer hover:bg-indigo-700'
 const STYLE_SCHEDULE_NOT_CURR = 'bg-indigo-300 text-white text-sm mb-px mx-px rounded hover:cursor-pointer hover:bg-indigo-500'
+
+const MemoNavbar = React.memo(Navbar)
+const MemoDays = React.memo(Days)
 
 export const Calendar = () => {
   // fetch currentMonth to render the calendar, and schedulesList to refer schedules to render
@@ -32,7 +50,8 @@ export const Calendar = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [id, setId] = useState("")
-  const [scheduleId, setScheduleId] = useState("")
+  const [schedulesNum, setSchedulesNum] = useState(0)
+  const [consecSchedulesNum, setConsecSchedulesNum] = useState(0)
 
   const closeModal = () => setModalOpen(!modalOpen)
   const closeDetailModal = () => setDetailOpen(!detailOpen)
@@ -40,10 +59,6 @@ export const Calendar = () => {
 
   // decide how many days to render using calculateMonth module
   const { prevMonth, currentMonth, nextMonth } = calculateMonth()
-
-  // if the days to render exceeds 35, the grid have 6 rows
-  const totalDays = prevMonth.length + currentMonth.length + nextMonth.length
-  const rows = totalDays > 35 ? 6 : 5
 
   const onDateClicked = (e) => {
     setModalOpen(!modalOpen)
@@ -54,7 +69,7 @@ export const Calendar = () => {
     e.preventDefault()
     e.stopPropagation()
     setDetailOpen(!detailOpen)
-    setScheduleId(e.target.id)
+    scheduleId = e.target.id
   }
 
   const renderedPrevMonth = prevMonth.map(function (date) {
@@ -75,8 +90,22 @@ export const Calendar = () => {
             if (!schedule) {
               return
             }
+
+            let dif = differenceInDays(add(schedule.time.endTime, { days: 1 }), sub(new Date(id), { hours: 9 }))
+            const day = (new Date(id)).getDay()
+            if (dif > 6) {
+              dif = 7 - day
+
+            } else if (dif === 0) {
+              dif = 1
+            }
+
             return (
-              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked} > {schedule.title}</div>
+              <div className={`absolute ${width[dif]}`}>
+                <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked} >
+                  {schedule.title}
+                </div>
+              </div>
             )
           }) : ""
         }
@@ -89,6 +118,7 @@ export const Calendar = () => {
     if (!isToday) {
       date = date.date
     }
+
     const id = add(new Date(year, month, date), { hours: 9 }).toISOString().substring(0, 10)
     return (
       <div id={id} className={`${STYLE_DATE}`} key={date} onClick={onDateClicked}>
@@ -99,14 +129,33 @@ export const Calendar = () => {
         </div>
         {
           schedules[date] ? schedules[date].map(scheduleId => {
+            const day = (new Date(id)).getDay()
+
             const schedule = schedulesList.find(schedule => schedule?.id === scheduleId)
             if (!schedule) {
               return
             }
 
+            let dif = differenceInDays(add(schedule.time.endTime, { days: 1 }), sub(new Date(id), { hours: 9 }))
+            if (dif > 6) {
+              dif = 7 - day
+              for (let index = 0; index < dif; index++) {
+                daysList.push((new Date(id).getDate()) + index)
+              }
+            } else if (dif === 0) {
+              dif = 1
+            }
+
+            const isSingle = (dif === 1 && daysList.includes(date)) ? true : false
+
             return (
-              <div id={schedule.id} className={`${STYLE_SCHEDULE_CURR}`} key={schedule.id} onClick=
-                {onScheduleClicked}>{schedule.title}</div>
+              <>
+                <div className={isSingle ? 'relative top-em' : `absolute ${width[dif]}`}>
+                  <div id={schedule.id} className={`${STYLE_SCHEDULE_CURR}`} key={schedule.id + date} onClick={onScheduleClicked}>
+                    {schedule.title}
+                  </div>
+                </div>
+              </>
             )
           }) : ""
         }
@@ -133,8 +182,21 @@ export const Calendar = () => {
             if (!schedule) {
               return
             }
+
+            let dif = differenceInDays(add(schedule.time.endTime, { days: 1 }), sub(new Date(id), { hours: 9 }))
+            const day = (new Date(id)).getDay()
+            if (dif > 6) {
+              dif = 7 - day
+            } else if (dif === 0) {
+              dif = 1
+            }
+
             return (
-              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked} > {schedule.title}</div>
+              <div className={`absolute ${width[dif]}`}>
+                <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} onClick={onScheduleClicked} >
+                  {schedule.title}
+                </div>
+              </div>
             )
           }) : ""
         }
@@ -154,9 +216,9 @@ export const Calendar = () => {
 
   return (
     <>
-      <Navbar />
-      <Days />
-      <div className={`h-5/6 grid grid-cols-7 grid-rows-${rows} auto-rows-fr`}>
+      <MemoNavbar />
+      <MemoDays />
+      <div className={`h-5/6 grid grid-cols-7 auto-rows-fr`}>
         {renderCalendar()}
       </div>
       {modalOpen && (

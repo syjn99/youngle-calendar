@@ -64,11 +64,24 @@ export const schedulesSlice = createSlice({
         const count = state.schedulesList.push(action.payload)
         const newSchedule = state.schedulesList[count - 1]
         let [startTime, endTime] = [add(newSchedule.time.startTime, { hours: 9 }), add(newSchedule.time.endTime, { hours: 9 })]
-        let cnt = 0
+
+
+        let firstDay = true
+
+
         while (startTime <= endTime) {
+
+
+          if (startTime.getDay() !== 0) {
+            if (!firstDay) {
+              startTime = add(startTime, { days: 1 })
+              continue
+            }
+          }
+
+
           const yyyymm = startTime.toISOString().substring(0, 7)
           if (!state.dateMap[yyyymm]) {
-            console.log("no datemap", startTime.toISOString())
             state.dateMap[yyyymm] = {}
           }
           if (!state.dateMap[yyyymm][startTime.getDate()]) {
@@ -76,7 +89,11 @@ export const schedulesSlice = createSlice({
           }
           state.dateMap[yyyymm][startTime.getDate()].push(newSchedule.id)
           startTime = add(startTime, { days: 1 })
-          cnt = cnt + 1
+
+
+          firstDay = false
+
+
         }
       },
       prepare(title, startDate, endDate, description) {
@@ -104,7 +121,6 @@ export const schedulesSlice = createSlice({
     },
     scheduleEdited: {
       reducer(state, action) {
-        console.log(action)
         const index = state.schedulesList.findIndex(schedule => {
           return schedule?.id === action.payload.originalId
         })
@@ -112,10 +128,17 @@ export const schedulesSlice = createSlice({
         const count = state.schedulesList.push(action.payload.edittedSchedule)
         const newSchedule = state.schedulesList[count - 1]
         let [startTime, endTime] = [add(newSchedule.time.startTime, { hours: 9 }), add(newSchedule.time.endTime, { hours: 9 })]
+        let firstDay = true
+
         while (startTime <= endTime) {
+          if (startTime.getDay() !== 0) {
+            if (!firstDay) {
+              startTime = add(startTime, { days: 1 })
+              continue
+            }
+          }
           const yyyymm = startTime.toISOString().substring(0, 7)
           if (!state.dateMap[yyyymm]) {
-            console.log("no datemap", startTime.toISOString())
             state.dateMap[yyyymm] = {}
           }
           if (!state.dateMap[yyyymm][startTime.getDate()]) {
@@ -123,6 +146,7 @@ export const schedulesSlice = createSlice({
           }
           state.dateMap[yyyymm][startTime.getDate()].push(newSchedule.id)
           startTime = add(startTime, { days: 1 })
+          firstDay = false
         }
       },
       prepare(id, title, startDate, endDate, description) {
