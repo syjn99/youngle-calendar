@@ -1,15 +1,13 @@
-import styles from "../styles/Days.module.css"
-
 const Days = () => {
   return (
-    <div className={styles.Days}>
-      <div className={styles.eachDay}>Sun</div>
-      <div className={styles.eachDay}>Mon</div>
-      <div className={styles.eachDay}>Tue</div>
-      <div className={styles.eachDay}>Wed</div>
-      <div className={styles.eachDay}>Thur</div>
-      <div className={styles.eachDay}>Fri</div>
-      <div className={styles.eachDay}>Sat</div>
+    <div className="grid grid-cols-7 font-light my-2">
+      <div className='text-center text-red-500'>일</div>
+      <div className='text-center'>월</div>
+      <div className='text-center'>화</div>
+      <div className='text-center'>수</div>
+      <div className='text-center'>목</div>
+      <div className='text-center'>금</div>
+      <div className='text-center text-blue-500'>토</div>
     </div>
   )
 }

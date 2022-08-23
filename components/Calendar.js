@@ -3,24 +3,32 @@ import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { calculateMonth } from '../modules/calculateMonth'
 import targetDate from '../modules/targetDate'
-import styles from "../styles/Calendar.module.css"
 import AddScheduleForm from './AddScheduleForm'
+import Days from './Days'
 import Modal from './Modal'
+import { Navbar } from './Navbar'
 import ScheduleDetail from './ScheduleDetail'
 
+// define commonly used styles
+const STYLE_DATE = "border text-center transition ease-in-out hover:bg-gray-200"
+const STYLE_SCHEDULE_CURR = 'bg-indigo-500 text-white text-sm mb-px mx-px rounded hover:cursor-pointer hover:bg-indigo-700'
+const STYLE_SCHEDULE_NOT_CURR = 'bg-indigo-300 text-white text-sm mb-px mx-px rounded hover:cursor-pointer hover:bg-indigo-500'
+
 export const Calendar = () => {
+  // fetch currentMonth to render the calendar, and schedulesList to refer schedules to render
   const { year, month } = useSelector(state => state.currentMonth)
   const schedulesList = useSelector(state => state.schedules.schedulesList)
+
+  // fetch schedules from dateMap
   const prevYearMonth = (new Date(year, month).toISOString().substring(0, 7))
   const yearMonth = (new Date(year, month + 1).toISOString().substring(0, 7))
   const nextYearMonth = (new Date(year, month + 2).toISOString().substring(0, 7))
-
 
   const prevSchedules = (useSelector(state => state.schedules.dateMap[prevYearMonth]) || {})
   const schedules = (useSelector(state => state.schedules.dateMap[yearMonth]) || {})
   const nextSchedules = (useSelector(state => state.schedules.dateMap[nextYearMonth]) || {})
 
-
+  // define states locally used in this components
   const [modalOpen, setModalOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [id, setId] = useState("")
@@ -29,7 +37,13 @@ export const Calendar = () => {
   const closeModal = () => setModalOpen(!modalOpen)
   const closeDetailModal = () => setDetailOpen(!detailOpen)
 
+
+  // decide how many days to render using calculateMonth module
   const { prevMonth, currentMonth, nextMonth } = calculateMonth()
+
+  // if the days to render exceeds 35, the grid have 6 rows
+  const totalDays = prevMonth.length + currentMonth.length + nextMonth.length
+  const rows = totalDays > 35 ? 6 : 5
 
   const onDateClicked = (e) => {
     setModalOpen(!modalOpen)
@@ -44,9 +58,9 @@ export const Calendar = () => {
     const id = add(new Date(year, month - 1, date), { hours: 9 }).toISOString().substring(0, 10)
 
     return (
-      <div id={id} className={`${styles.prev} ${styles.date}`} key={date} onClick={onDateClicked}>
+      <div id={id} className={`${STYLE_DATE}`} key={date} onClick={onDateClicked} >
         {
-          <span className={isToday ? "" : `${styles.today}`}>{date}</span>
+          <div className={isToday ? 'my-1 font-extralight' : "my-1 bg-indigo-500 text-white inline-block px-1 rounded-full font-extralight"}> {date}</div>
         }
         {
           prevSchedules[date] ? prevSchedules[date].map(scheduleId => {
@@ -55,7 +69,7 @@ export const Calendar = () => {
               return
             }
             return (
-              <div className={styles.schedule} key={schedule.id}>{schedule.title}</div>
+              <div className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} > {schedule.title}</div>
             )
           }) : ""
         }
@@ -70,10 +84,12 @@ export const Calendar = () => {
     }
     const id = add(new Date(year, month, date), { hours: 9 }).toISOString().substring(0, 10)
     return (
-      <div id={id} className={`${styles.curr} ${styles.date}`} key={date} onClick={onDateClicked}>
-        {date === 1 ? `${month + 1}월 ` : ""}
-        <span className={isToday ? "" : `${styles.today}`}>{date}</span>
-        {date === 1 ? "일" : ""}
+      <div id={id} className={`${STYLE_DATE}`} key={date} onClick={onDateClicked}>
+        <div className={isToday ? 'my-1' : "my-1 bg-indigo-500 text-white inline-block px-1 rounded-full"}>
+          {date === 1 ? `${month + 1}월 ` : ""}
+          {date}
+          {date === 1 ? "일" : ""}
+        </div>
         {
           schedules[date] ? schedules[date].map(scheduleId => {
             const schedule = schedulesList.find(schedule => schedule?.id === scheduleId)
@@ -81,8 +97,7 @@ export const Calendar = () => {
               return
             }
             return (
-              // <h1>hi</h1>
-              <div id={schedule.id} className={styles.schedule} key={schedule.id} onClick=
+              <div id={schedule.id} className={`${STYLE_SCHEDULE_CURR}`} key={schedule.id} onClick=
                 {(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -103,10 +118,10 @@ export const Calendar = () => {
     }
     const id = add(new Date(year, month + 1, date), { hours: 9 }).toISOString().substring(0, 10)
     return (
-      <div id={id} className={`${styles.next} ${styles.date}`} key={date} onClick={onDateClicked}>
-        <div>
+      <div id={id} className={`${STYLE_DATE}`} key={date} onClick={onDateClicked}>
+        <div className={isToday ? 'my-1 font-extralight' : "my-1 bg-indigo-500 text-white inline-block px-2 rounded-full"}>
           {date === 1 || date.date === 1 ? `${(month + 1) % 12 + 1}월 ` : ""}
-          <span className={isToday ? "" : `${styles.today}`}>{date}</span>
+          {date}
           {date === 1 || date.date === 1 ? "일" : ""}
         </div>
         {
@@ -115,13 +130,12 @@ export const Calendar = () => {
             if (!schedule) {
               return
             }
-
             return (
-              <div className={styles.schedule} key={schedule.id}>{schedule.title}</div>
+              <div className={`${STYLE_SCHEDULE_NOT_CURR}`} key={schedule.id} > {schedule.title}</div>
             )
           }) : ""
         }
-      </div>
+      </div >
     )
   })
 
@@ -136,8 +150,12 @@ export const Calendar = () => {
   }
 
   return (
-    <div className={styles.calendar}>
-      {renderCalendar()}
+    <>
+      <Navbar />
+      <Days />
+      <div className={`h-5/6 grid grid-cols-7 grid-rows-${rows} auto-rows-fr`}>
+        {renderCalendar()}
+      </div>
       {modalOpen && (
         <Modal closeModal={closeModal}>
           <AddScheduleForm targetDate={new Date(targetDate(id)[0], targetDate(id)[1] - 1, targetDate(id)[2])} closeModal={closeModal} />
@@ -147,6 +165,6 @@ export const Calendar = () => {
           <ScheduleDetail scheduleId={scheduleId} closeModal={closeDetailModal} />
         </Modal>
       )}
-    </div>
+    </>
   )
 }

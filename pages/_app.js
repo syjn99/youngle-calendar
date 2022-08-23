@@ -1,12 +1,18 @@
-import Layout from '../components/Layout'
 import { wrapper } from '../store/store'
 import '../styles/globals.css'
 
 function App({ Component, pageProps }) {
   return (
-    <Layout>
+    <>
       <Component {...pageProps} />
-    </Layout>
+      <style global jsx>{`
+          html,
+          body,
+          div#__next {
+            height: 100vh;
+          }
+        `}</style>
+    </>
   )
 }
 

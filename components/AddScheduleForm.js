@@ -1,4 +1,3 @@
-import styles from "../styles/AddScheduleForm.module.css"
 import { faPen, faClockFour } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
@@ -47,26 +46,26 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
   }
 
   return (
-    <form onSubmit={onSubmit}>
+    <form className='my-10' onSubmit={onSubmit}>
       <input
-        className={styles.titleInput}
+        className="w-full text-2xl px-3 py-3 rounded mb-10 border border-solid border-gray-300 transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
         type="text"
         placeholder="일정 제목"
         autoFocus
         value={title}
         onChange={onTitleChange}
       />
-      <br />
-      <br />
-      <div onClick={() => setDetailTime(!detailTime)}>
-        <FontAwesomeIcon icon={faClockFour} />
-        {displayedTime}
+      <div className='flex justify-left py-4 px-1 rounded hover:bg-gray-300 hover:cursor-pointer' onClick={() => setDetailTime(!detailTime)}>
+        <FontAwesomeIcon className='text-3xl mr-4' icon={faClockFour} />
+        <span className='text-xl'>
+          {displayedTime}
+        </span>
       </div>
       {detailTime && (
-        <>
+        <div className='my-3 px-1 flex justify-around text-center'>
           <label htmlFor='startDate'>
-            시작 날짜:
-            <input
+            <span className='font-bold'>시작 날짜:</span>
+            <input className='block p-2 m-2 border rounded'
               type="date"
               id='startDate'
               value={add(startDate, { hours: 9 }).toISOString().substring(0, 10)}
@@ -75,8 +74,8 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
             />
           </label>
           <label htmlFor='endDate'>
-            종료 날짜:
-            <input
+            <span className='font-bold'>종료 날짜:</span>
+            <input className='block p-2 m-2 border rounded'
               type="date"
               id='endDate'
               value={add(endDate, { hours: 9 }).toISOString().substring(0, 10)}
@@ -84,22 +83,20 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
               onChange={onEndDateChange}
             />
           </label>
-        </>
+        </div>
       )
       }
-      <br />
-      <br />
-      <div>
-        <FontAwesomeIcon icon={faPen} />
+      <div className='flex justify-left py-4 px-1 rounded'>
+        <FontAwesomeIcon className='text-3xl mr-4' icon={faPen} />
         <textarea
-          className={styles.descriptionInput}
+          className="w-5/6 py-2 px-1 border border-solid border-gray-300 transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
           type="text"
           placeholder="내용 추가"
           value={description}
           onChange={onDescriptionChange}
         />
       </div>
-      <button>Add Schedule</button>
+      <button className='relative top-5 hover:bg-blue-500 text-blue-700 font-bold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded'>Add Schedule</button>
     </form>
   )
 }
