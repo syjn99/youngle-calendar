@@ -252,7 +252,7 @@ const WeekView = () => {
 
   return (
     <>
-      <WeekNavbar date={date} />
+      {/* <WeekNavbar date={date} /> */}
       <div className='flex'>
         <div className='w-1/10'>
           &nbsp;
