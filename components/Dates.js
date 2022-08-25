@@ -20,7 +20,7 @@ const Dates = ({ date }) => {
     <div className="grid grid-cols-7 font-light my-2">
       {dates.map(date => {
         return (
-          <div className='text-center font-extralight'>
+          <div className='text-center font-extralight' key={date}>
             {date}
           </div>
         )
