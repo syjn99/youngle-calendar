@@ -1,6 +1,7 @@
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { add, differenceInDays, sub } from 'date-fns'
+import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { calculateMonth } from '../modules/calculateMonth'
@@ -60,6 +61,8 @@ export const Calendar = () => {
   const closeModal = () => setModalOpen(!modalOpen)
   const closeDetailModal = () => setDetailOpen(!detailOpen)
 
+  const router = useRouter()
+
 
   // decide how many days to render using calculateMonth module
   const { prevMonth, currentMonth, nextMonth } = calculateMonth()
@@ -79,6 +82,15 @@ export const Calendar = () => {
     e.stopPropagation()
     setScheduleId(e.target.id)
     setDetailOpen(!detailOpen)
+  }
+
+  const onDateClickedToRoute = (e) => {
+    console.log(e)
+    e.stopPropagation()
+    const clickedDate = e.target.parentElement.id ? e.target.parentElement.id : e.target.parentElement.parentElement.id
+    const clickedDateArr = clickedDate.split("-")
+    const clickedDateRoute = `/day/${clickedDateArr[0]}/${parseInt(clickedDateArr[1])}/${parseInt(clickedDateArr[2])}`
+    router.push(clickedDateRoute)
   }
 
 
@@ -129,7 +141,12 @@ export const Calendar = () => {
     return (
       <div id={id} className={`${STYLE_DATE}`} key={date} onClick={onDateClicked} >
         {
-          <div className={isToday ? 'my-1 font-extralight' : "my-1 bg-indigo-500 text-white inline-block px-1 rounded-full font-extralight"}> {date}</div>
+          <div
+            className={isToday ? 'my-1 font-extralight rounded-full hover:bg-gray-300 hover:cursor-pointer' : "my-1 bg-indigo-500 text-white inline-block px-1 rounded-full font-extralight hover:bg-gray-300 hover:cursor-pointer"}
+            onClick={onDateClickedToRoute}
+          >
+            {date}
+          </div>
         }
         {
           prevSchedules[date] ? prevSchedules[date].map(scheduleId => {
@@ -142,11 +159,16 @@ export const Calendar = () => {
 
             if (cnt === 4) {
               return (
-                <FontAwesomeIcon className={`relative ${scheduleNum[date - prevMonth[0]] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
+                <FontAwesomeIcon
+                  className={`relative rounded-full hover:bg-gray-300 hover:cursor-pointer ${scheduleNum[date - prevMonth[0]] ? "top-4" : "top-minus"}`}
+                  icon={faEllipsis}
+                  onClick={onDateClickedToRoute}
+                />
               )
             } else if (cnt > 4) {
               return
             }
+
 
             const isDetailSet = schedule.time.isDetailSet
 
@@ -190,7 +212,10 @@ export const Calendar = () => {
 
     return (
       <div id={id} className={`${STYLE_DATE}`} key={date} onClick={onDateClicked}>
-        <div className={isToday ? 'my-1' : "my-1 bg-indigo-500 text-white inline-block px-1 rounded-full"}>
+        <div
+          className={isToday ? 'my-1 rounded-full hover:bg-gray-300 hover:cursor-pointer' : "my-1 bg-indigo-500 text-white inline-block px-1 rounded-full hover:bg-gray-300 hover:cursor-pointer"}
+          onClick={onDateClickedToRoute}
+        >
           {date === 1 ? `${month + 1}월 ` : ""}
           {date}
           {date === 1 ? "일" : ""}
@@ -207,7 +232,11 @@ export const Calendar = () => {
 
             if (cnt === 4) {
               return (
-                <FontAwesomeIcon className={`relative ${scheduleNum[date + prevMonth.length - 1] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
+                <FontAwesomeIcon
+                  className={`relative rounded-full hover:bg-gray-300 hover:cursor-pointer ${scheduleNum[date + prevMonth.length - 1] ? "top-4" : "top-minus"}`}
+                  icon={faEllipsis}
+                  onClick={onDateClickedToRoute}
+                />
               )
             } else if (cnt > 4) {
               return
@@ -251,7 +280,10 @@ export const Calendar = () => {
     const id = add(new Date(year, month + 1, date), { hours: 9 }).toISOString().substring(0, 10)
     return (
       <div id={id} className={`${STYLE_DATE}`} key={date} onClick={onDateClicked}>
-        <div className={isToday ? 'my-1 font-extralight' : "my-1 bg-indigo-500 text-white inline-block px-2 rounded-full"}>
+        <div
+          className={isToday ? 'my-1 font-extralight rounded-full hover:bg-gray-300 hover:cursor-pointer' : "my-1 bg-indigo-500 text-white inline-block px-2 rounded-full hover:bg-gray-300 hover:cursor-pointer"}
+          onClick={onDateClickedToRoute}
+        >
           {date === 1 || date.date === 1 ? `${(month + 1) % 12 + 1}월 ` : ""}
           {date}
           {date === 1 || date.date === 1 ? "일" : ""}
@@ -267,7 +299,11 @@ export const Calendar = () => {
 
             if (cnt === 4) {
               return (
-                <FontAwesomeIcon className={`relative ${scheduleNum[date + prevMonth.length + currentMonth.length] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
+                <FontAwesomeIcon
+                  className={`relative rounded-full hover:bg-gray-300 hover:cursor-pointer ${scheduleNum[date + prevMonth.length + currentMonth.length] ? "top-4" : "top-minus"}`}
+                  icon={faEllipsis}
+                  onClick={onDateClickedToRoute}
+                />
               )
             } else if (cnt > 4) {
               return

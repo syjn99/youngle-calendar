@@ -2,7 +2,7 @@ import { faClockFour, faPen } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { scheduleDeleted, scheduleEdited } from '../features/schedules/schedulesSlice'
+import { scheduleDeleted } from '../features/schedules/schedulesSlice'
 import { formatDate } from '../modules/formatDate'
 import EditScheduleForm from './EditScheduleForm'
 
@@ -11,13 +11,13 @@ const ScheduleDetail = ({ scheduleId, closeModal }) => {
   if (!schedule) {
     return
   }
+
   const [isEdit, setIsEdit] = useState(false)
-  console.log(schedule)
   const isDetailSet = schedule.time.isDetailSet
 
   const dispatch = useDispatch()
 
-  const calculateStartTime = (startTime) => {
+  const formatTime = (startTime) => {
     return `${startTime.getHours()}:${startTime.getMinutes() === 0 ? '00' : startTime.getMinutes()} `
   }
 
@@ -42,7 +42,7 @@ const ScheduleDetail = ({ scheduleId, closeModal }) => {
         </div>
         {isDetailSet ? (
           <div className='text-lg'>
-            {`${calculateStartTime(schedule.time.startTime)} - ${calculateStartTime(schedule.time.endTime)}`}
+            {`${formatTime(schedule.time.startTime)} - ${formatTime(schedule.time.endTime)}`}
           </div>
         ) : null}
         <div className='flex justify-left py-4 px-1 rounded'>

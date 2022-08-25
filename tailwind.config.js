@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      leading: {
+        '12': '48px',
+      },
       spacing: {
         '0/7': '0',
         '1/7': '14.2857143%',
@@ -19,7 +22,10 @@ module.exports = {
         'first': "0rem",
         'second': "21px",
         'third': '42px',
-        'minus': '-4px'
+        'minus': '-4px',
+        '1/10': '10%',
+        '8/10': '80%',
+        '1/20': '5%',
       },
       left: {
         '1/7': '14.2857143%',
