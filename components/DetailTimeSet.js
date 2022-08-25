@@ -1,4 +1,5 @@
 const DetailTimeSet = ({ isStart, startHour }) => {
+  console.log(startHour)
   let nowHour = new Date().getHours()
   let isAM = true
   if (nowHour >= 12) {

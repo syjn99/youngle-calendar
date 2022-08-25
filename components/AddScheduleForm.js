@@ -10,9 +10,6 @@ import { createDetailTimeObject } from '../modules/createDetailTimeObject'
 // import { createDetailTimeObject } from '../modules/createDetailTimeObject'
 
 const AddScheduleForm = ({ targetDate, closeModal, startHour, fromDayView }) => {
-  if (startHour) {
-    console.log(startHour)
-  }
 
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
@@ -76,6 +73,7 @@ const AddScheduleForm = ({ targetDate, closeModal, startHour, fromDayView }) => 
         placeholder="일정 제목"
         autoFocus
         value={title}
+        required
         onChange={onTitleChange}
       />
       <div className='flex justify-left py-4 px-1 rounded hover:bg-gray-300 hover:cursor-pointer' onClick={() => setDetailTime(!detailTime)}>
@@ -116,7 +114,7 @@ const AddScheduleForm = ({ targetDate, closeModal, startHour, fromDayView }) => 
             <>
               <DetailTimeSet isStart={true} startHour={startHour} />
               <FontAwesomeIcon icon={faMinus} />
-              <DetailTimeSet isStart={false} startHour={startHour} />
+              <DetailTimeSet isStart={false} startHour={parseInt(startHour) + 1} />
             </>
           )}
         </>
