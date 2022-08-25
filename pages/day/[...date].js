@@ -1,7 +1,8 @@
 import { add, differenceInMinutes, isAfter, isEqual, sub } from 'date-fns';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import AddScheduleForm from '../../components/AddScheduleForm';
 import { DayNavbar } from '../../components/DayNavbar';
 import Modal from '../../components/Modal';
 import ScheduleDetail from '../../components/ScheduleDetail';
@@ -23,47 +24,53 @@ export default function DayView() {
   const schedulesDateMap = (useSelector(state => state.schedules.dateMap) || {})
   const monthSchedules = schedulesDateMap[yearMonth] ? schedulesDateMap[yearMonth] : {}
   const schedules = monthSchedules[day] ? monthSchedules[day] : []
-  const multispanSchedules = []
+  const [multispanSchedules, setMultispanSchedules] = useState([])
   const detailedSchedules = []
 
-  // Multispan 스케줄들을 가져와야 한다.....
+  // Multispan 스케줄들을 가져오기
+
   let yesterday = sub(currentDay, { days: 1 })
-  while (yesterday.getDay() !== 6) {
-    const [yesYear, yesMonth, yesDate] = [yesterday.getFullYear(), yesterday.getMonth() + 1, yesterday.getDate()]
-    const yesYearMonth = yesMonth < 10 ? `${yesYear}-0${yesMonth}` : `${yesYear}-${yesMonth}`
-    const yesMonthSchedules = schedulesDateMap[yesYearMonth]
+  useEffect(() => {
+    console.log(multispanSchedules)
+    while (yesterday.getDay() !== 6) {
+      const [yesYear, yesMonth, yesDate] = [yesterday.getFullYear(), yesterday.getMonth() + 1, yesterday.getDate()]
+      const yesYearMonth = yesMonth < 10 ? `${yesYear}-0${yesMonth}` : `${yesYear}-${yesMonth}`
+      const yesMonthSchedules = schedulesDateMap[yesYearMonth]
 
-    if (!yesMonthSchedules) {
-      yesterday = sub(yesterday, { days: 1 })
-      continue
-    }
-
-    const yesSchedules = yesMonthSchedules[yesDate]
-
-    if (!yesSchedules) {
-      yesterday = sub(yesterday, { days: 1 })
-      continue
-    }
-
-    yesSchedules.map(scheduleId => {
-      const schedule = schedulesList.find(schedule => schedule?.id === scheduleId)
-
-      if (!schedule) {
+      if (!yesMonthSchedules) {
         yesterday = sub(yesterday, { days: 1 })
-        return
+        continue
       }
 
-      if (isAfter(schedule.time.endTime, currentDay) || isEqual(schedule.time.endTime, currentDay) && !multispanSchedules.includes(scheduleId)) {
-        multispanSchedules.push(scheduleId)
-      }
-    })
+      const yesSchedules = yesMonthSchedules[yesDate]
 
-    yesterday = sub(yesterday, { days: 1 })
-  }
+      if (!yesSchedules) {
+        yesterday = sub(yesterday, { days: 1 })
+        continue
+      }
+
+      yesSchedules.map(scheduleId => {
+        const schedule = schedulesList.find(schedule => schedule?.id === scheduleId)
+
+        if (!schedule) {
+          yesterday = sub(yesterday, { days: 1 })
+          return
+        }
+
+        if (isAfter(schedule.time.endTime, currentDay) || isEqual(schedule.time.endTime, currentDay) && !multispanSchedules.includes(scheduleId)) {
+          setMultispanSchedules([...multispanSchedules, scheduleId])
+        }
+      })
+
+      yesterday = sub(yesterday, { days: 1 })
+    }
+  }, [])
 
   const hours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
+  const [startHour, setStartHour] = useState("")
   const [scheduleId, setScheduleId] = useState("")
+  const [modalOpen, setModalOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
 
 
@@ -71,6 +78,7 @@ export default function DayView() {
     setScheduleId(e.target.id)
     setDetailOpen(!detailOpen)
   }
+
 
   return (
     <div className='text-center relative'>
@@ -122,17 +130,29 @@ export default function DayView() {
         }) : ""
       }
       { // 시간 렌더링
-        hours.map(function (date) {
+        hours.map(function (hour) {
           return (
-            <div className={`border h-12 flex`}>
-              <span className='border border-y-0 w-1/10 h-12 text-right font-light pr-0'>{date}시</span>
+            <div
+              id={hour}
+              onClick={(e) => {
+                setModalOpen(prev => !prev)
+                const targetHour = e.target.id || e.target.parentElement.id
+                setStartHour(targetHour)
+              }}
+              className={`border h-12 flex hover:bg-gray-200 hover:cursor-pointer`}
+              key={hour}
+            >
+              <span
+                className='border border-y-0 w-1/10 h-12 text-right font-light pr-0'
+              >
+                {hour}시
+              </span>
             </div>
           )
         })
       }
       { // 시간 렌더링하면서, 디테일 스케줄 렌더링
         detailedSchedules ? detailedSchedules.map(schedule => {
-          console.log(schedule)
           const height = differenceInMinutes(schedule.time.endTime, schedule.time.startTime) * 48 / 60
 
           const bottom = differenceInMinutes(tomorrow, schedule.time.endTime) * 48 / 60
@@ -146,6 +166,8 @@ export default function DayView() {
                   bottom: `${bottom}px`
                 }}
                 onClick={onScheduleClicked}
+                key={schedule.id}
+
               >
                 <h1 className='text-2xl font-semibold'>{schedule.title}</h1>
 
@@ -154,11 +176,17 @@ export default function DayView() {
           )
         }) : ""
       }
-      {detailOpen && (
-        <Modal closeModal={() => setDetailOpen(!detailOpen)}>
-          <ScheduleDetail scheduleId={scheduleId} closeModal={() => setDetailOpen(!detailOpen)} />
-        </Modal>
-      )}
-    </div>
+      {modalOpen && (
+        <Modal closeModal={() => setModalOpen(prev => !prev)}>
+          <AddScheduleForm targetDate={currentDay} closeModal={() => setModalOpen(prev => !prev)} startHour={startHour} />
+        </Modal>)}
+      {
+        detailOpen && (
+          <Modal closeModal={() => setDetailOpen(prev => !prev)}>
+            <ScheduleDetail scheduleId={scheduleId} closeModal={() => setDetailOpen(prev => !prev)} />
+          </Modal>
+        )
+      }
+    </div >
   )
 }

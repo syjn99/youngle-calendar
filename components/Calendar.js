@@ -85,9 +85,8 @@ export const Calendar = () => {
   }
 
   const onDateClickedToRoute = (e) => {
-    console.log(e)
     e.stopPropagation()
-    const clickedDate = e.target.parentElement.id ? e.target.parentElement.id : e.target.parentElement.parentElement.id
+    const clickedDate = e.target.parentElement.id || e.target.parentElement.parentElement.id
     const clickedDateArr = clickedDate.split("-")
     const clickedDateRoute = `/day/${clickedDateArr[0]}/${parseInt(clickedDateArr[1])}/${parseInt(clickedDateArr[2])}`
     router.push(clickedDateRoute)
@@ -190,7 +189,6 @@ export const Calendar = () => {
               >
                 {isDetailSet ? <div className='inline-block rounded-full bg-indigo-500 w-3 h-3 mr-1'></div> : null}
                 {isDetailSet ? <span className='font-extralight'>{startTime}</span> : null}
-                {schedule.title}
                 {schedule.title}
               </div>
             )

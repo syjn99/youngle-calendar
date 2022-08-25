@@ -8,14 +8,14 @@ import EditScheduleForm from './EditScheduleForm'
 
 const ScheduleDetail = ({ scheduleId, closeModal }) => {
   const schedule = useSelector(state => state.schedules.schedulesList.find(schedule => schedule?.id === scheduleId))
+  const [isEdit, setIsEdit] = useState(false)
+  const dispatch = useDispatch()
   if (!schedule) {
     return
   }
 
-  const [isEdit, setIsEdit] = useState(false)
   const isDetailSet = schedule.time.isDetailSet
 
-  const dispatch = useDispatch()
 
   const formatTime = (startTime) => {
     return `${startTime.getHours()}:${startTime.getMinutes() === 0 ? '00' : startTime.getMinutes()} `
@@ -63,7 +63,6 @@ const ScheduleDetail = ({ scheduleId, closeModal }) => {
         ? <EditScheduleForm schedule={schedule} closeModal={closeModal} />
         : <ScheduleDetailPage />
       }
-
     </>
   )
 }

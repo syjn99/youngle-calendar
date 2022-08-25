@@ -9,7 +9,11 @@ import DetailTimeSet from './DetailTimeSet'
 import { createDetailTimeObject } from '../modules/createDetailTimeObject'
 // import { createDetailTimeObject } from '../modules/createDetailTimeObject'
 
-const AddScheduleForm = ({ targetDate, closeModal }) => {
+const AddScheduleForm = ({ targetDate, closeModal, startHour }) => {
+  if (startHour) {
+    console.log(startHour)
+  }
+
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
 
@@ -110,9 +114,9 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
           </div>
           {isTimeSet && (
             <>
-              <DetailTimeSet isStart={true} />
+              <DetailTimeSet isStart={true} startHour={startHour} />
               <FontAwesomeIcon icon={faMinus} />
-              <DetailTimeSet isStart={false} />
+              <DetailTimeSet isStart={false} startHour={startHour} />
             </>
           )}
         </>

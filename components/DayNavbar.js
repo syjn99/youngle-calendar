@@ -10,6 +10,12 @@ import Modal from './Modal'
 export const DayNavbar = ({ date }) => {
   const router = useRouter()
   const today = new Date()
+  const [year, month, day] = router.query.date || []
+  date = {
+    year,
+    month,
+    day
+  }
   const currentDay = new Date(date.year, date.month - 1, date.day)
   const yesterday = sub(currentDay, { days: 1 })
   const tomorrow = add(currentDay, { days: 1 })
