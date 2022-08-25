@@ -22,6 +22,8 @@ export const Navbar = () => {
   const onViewChangeClicked = (e) => {
     if (e.target.value === '일') {
       router.push(todayRoute)
+    } else if (e.target.value === '주') {
+      router.push(`/week/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`)
     }
   }
 

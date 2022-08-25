@@ -1,10 +1,11 @@
-import { add, differenceInMinutes } from 'date-fns';
+import { add, differenceInMinutes, isAfter, isEqual, sub } from 'date-fns';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { DayNavbar } from '../../components/DayNavbar';
 import Modal from '../../components/Modal';
 import ScheduleDetail from '../../components/ScheduleDetail';
+import { formatDate } from '../../modules/formatDate';
 
 export default function DayView() {
   const router = useRouter()
@@ -19,9 +20,46 @@ export default function DayView() {
   const tomorrow = add(currentDay, { days: 1 })
 
   const schedulesList = useSelector(state => state.schedules.schedulesList)
-  const monthSchedules = (useSelector(state => state.schedules.dateMap[yearMonth]) || {})
+  const schedulesDateMap = (useSelector(state => state.schedules.dateMap) || {})
+  const monthSchedules = schedulesDateMap[yearMonth] ? schedulesDateMap[yearMonth] : {}
   const schedules = monthSchedules[day] ? monthSchedules[day] : []
+  const multispanSchedules = []
   const detailedSchedules = []
+
+  // Multispan 스케줄들을 가져와야 한다.....
+  let yesterday = sub(currentDay, { days: 1 })
+  while (yesterday.getDay() !== 6) {
+    const [yesYear, yesMonth, yesDate] = [yesterday.getFullYear(), yesterday.getMonth() + 1, yesterday.getDate()]
+    const yesYearMonth = yesMonth < 10 ? `${yesYear}-0${yesMonth}` : `${yesYear}-${yesMonth}`
+    const yesMonthSchedules = schedulesDateMap[yesYearMonth]
+
+    if (!yesMonthSchedules) {
+      yesterday = sub(yesterday, { days: 1 })
+      continue
+    }
+
+    const yesSchedules = yesMonthSchedules[yesDate]
+
+    if (!yesSchedules) {
+      yesterday = sub(yesterday, { days: 1 })
+      continue
+    }
+
+    yesSchedules.map(scheduleId => {
+      const schedule = schedulesList.find(schedule => schedule?.id === scheduleId)
+
+      if (!schedule) {
+        yesterday = sub(yesterday, { days: 1 })
+        return
+      }
+
+      if (isAfter(schedule.time.endTime, currentDay) || isEqual(schedule.time.endTime, currentDay) && !multispanSchedules.includes(scheduleId)) {
+        multispanSchedules.push(scheduleId)
+      }
+    })
+
+    yesterday = sub(yesterday, { days: 1 })
+  }
 
   const hours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
@@ -37,6 +75,28 @@ export default function DayView() {
   return (
     <div className='text-center relative'>
       <DayNavbar date={date} />
+      { // Multispan 먼저 렌더링
+        multispanSchedules ? multispanSchedules.map(scheduleId => {
+          const schedule = schedulesList.find(schedule => schedule?.id === scheduleId)
+          if (!schedule) {
+            return
+          }
+
+          return (
+            <div
+              id={schedule.id}
+              className='bg-indigo-500 text-white my-1 w-6/7 mx-auto rounded hover:cursor-pointer hover:bg-indigo-700'
+              key={schedule.id}
+              onClick={onScheduleClicked}
+            >
+              {schedule.title}
+              <span id={schedule.id} className='ml-2 font-extralight'>
+                ({`${formatDate(schedule.time.startTime)} - ${formatDate(schedule.time.endTime)}`})
+              </span>
+            </div>
+          )
+        }) : ""
+      }
       { // 하루종일 먼저 렌더링
         schedules ? schedules.map(scheduleId => {
           const schedule = schedulesList.find(schedule => schedule?.id === scheduleId)
