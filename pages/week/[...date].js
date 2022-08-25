@@ -225,30 +225,30 @@ const WeekView = () => {
   const hours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 
   let walkDay = new Date(date.year, date.month - 1, date.day)
-  let newMonth = null
-  let dates = []
-  let ids = {}
+  // let newMonth = null
+  // let dates = []
+  // let ids = {}
 
 
 
-  while (walkDay.getDay() !== 0) {
-    walkDay = sub(walkDay, { days: 1 })
-  }
+  // while (walkDay.getDay() !== 0) {
+  //   walkDay = sub(walkDay, { days: 1 })
+  // }
 
-  for (let i = 0; i < 7; i++) {
-    const tempYear = walkDay.getFullYear()
-    const tempMonth = walkDay.getMonth() + 1
-    const tempDate = walkDay.getDate()
-    if (tempDate === 1) {
-      newMonth = tempMonth
-    }
+  // for (let i = 0; i < 7; i++) {
+  //   const tempYear = walkDay.getFullYear()
+  //   const tempMonth = walkDay.getMonth() + 1
+  //   const tempDate = walkDay.getDate()
+  //   if (tempDate === 1) {
+  //     newMonth = tempMonth
+  //   }
 
-    dates.push(tempDate)
+  //   dates.push(tempDate)
 
-    ids[tempDate.toString()] = add(walkDay, { days: 1 }).toISOString().substring(0, 10)
+  //   ids[tempDate.toString()] = add(walkDay, { days: 1 }).toISOString().substring(0, 10)
 
-    walkDay = add(walkDay, { days: 1 })
-  }
+  //   walkDay = add(walkDay, { days: 1 })
+  // }
 
   return (
     <>
