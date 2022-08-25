@@ -1,11 +1,12 @@
-// import { add, differenceInDays, differenceInMinutes, sub } from 'date-fns'
-// import { useRouter } from 'next/router'
+import { add, differenceInDays, differenceInMinutes, sub } from 'date-fns'
+import { useRouter } from 'next/router'
+import Days from '../../components/Days'
 // import { useState } from 'react'
 // import { useSelector } from 'react-redux'
 // import Days from '../../components/Days'
 // import Modal from '../../components/Modal'
 // import ScheduleDetail from '../../components/ScheduleDetail'
-// import { WeekNavbar } from '../../components/WeekNavbar'
+import { WeekNavbar } from '../../components/WeekNavbar'
 
 // export default function WeekView() {
 //   const router = useRouter()
@@ -214,8 +215,88 @@
 // }
 
 const WeekView = () => {
+  const router = useRouter()
+  const [year, month, day] = router.query.date || []
+  const date = {
+    year,
+    month,
+    day
+  }
+  const hours = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+
+  let walkDay = new Date(date.year, date.month - 1, date.day)
+  let newMonth = null
+  let dates = []
+  let ids = {}
+
+
+
+  while (walkDay.getDay() !== 0) {
+    walkDay = sub(walkDay, { days: 1 })
+  }
+
+  for (let i = 0; i < 7; i++) {
+    const tempYear = walkDay.getFullYear()
+    const tempMonth = walkDay.getMonth() + 1
+    const tempDate = walkDay.getDate()
+    if (tempDate === 1) {
+      newMonth = tempMonth
+    }
+
+    dates.push(tempDate)
+
+    ids[tempDate.toString()] = add(walkDay, { days: 1 }).toISOString().substring(0, 10)
+
+    walkDay = add(walkDay, { days: 1 })
+  }
+
+  const onDateClickedToRoute = (e) => {
+    e.stopPropagation()
+    const clickedDate = e.target.id
+    const clickedDateArr = clickedDate.split("-")
+    const clickedDateRoute = `/day/${clickedDateArr[0]}/${parseInt(clickedDateArr[1])}/${parseInt(clickedDateArr[2])}`
+    router.push(clickedDateRoute)
+  }
+
   return (
-    <div>hi</div>
+    <>
+      <WeekNavbar date={date} />
+      <div className='flex'>
+        <div className='w-1/10'>
+          &nbsp;
+        </div>
+        <div className='w-9/10'>
+          <Days />
+          <div className="grid grid-cols-7 font-light my-2">
+            {dates.map(date => {
+              return (
+                <>
+                  <div id={ids[date]} className='text-center font-extralight hover:cursor-pointer hover:bg-gray-300' onClick={onDateClickedToRoute} key={ids[date]}>
+                    {date === 1 ? `${newMonth}월 ${date}일` : `${date}`}
+                  </div>
+                </>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+      {
+        hours.map(function (hour) {
+          return (
+            <div className={`border h-12 flex`}>
+              <span className='border border-y-0 w-1/10 pr-1 h-12 text-right font-light'>{hour}시</span>
+              <div className='inline-block w-week-1/7 border border-y-0'></div>
+              <div className='inline-block w-week-1/7 border border-y-0'></div>
+              <div className='inline-block w-week-1/7 border border-y-0'></div>
+              <div className='inline-block w-week-1/7 border border-y-0'></div>
+              <div className='inline-block w-week-1/7 border border-y-0'></div>
+              <div className='inline-block w-week-1/7 border border-y-0'></div>
+              <div className='inline-block w-week-1/7 border border-y-0'></div>
+            </div>
+          )
+        })
+      }
+    </>
   )
 }
 
