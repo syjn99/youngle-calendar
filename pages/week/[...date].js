@@ -261,7 +261,7 @@ const WeekView = () => {
           <Days />
         </div>
       </div>
-      {
+      {/* {
         hours.map(function (hour) {
           return (
             <div className={`border h-12 flex`} key={hour}>
@@ -276,7 +276,7 @@ const WeekView = () => {
             </div>
           )
         })
-      }
+      } */}
     </>
   )
 }
