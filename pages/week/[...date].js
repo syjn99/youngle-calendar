@@ -250,14 +250,6 @@ const WeekView = () => {
     walkDay = add(walkDay, { days: 1 })
   }
 
-  const onDateClickedToRoute = (e) => {
-    e.stopPropagation()
-    const clickedDate = e.target.id
-    const clickedDateArr = clickedDate.split("-")
-    const clickedDateRoute = `/day/${clickedDateArr[0]}/${parseInt(clickedDateArr[1])}/${parseInt(clickedDateArr[2])}`
-    router.push(clickedDateRoute)
-  }
-
   return (
     <>
       <WeekNavbar date={date} />
@@ -267,17 +259,6 @@ const WeekView = () => {
         </div>
         <div className='w-9/10'>
           <Days />
-          <div className="grid grid-cols-7 font-light my-2">
-            {dates.map(date => {
-              return (
-                <>
-                  <div id={ids[date]} className='text-center font-extralight hover:cursor-pointer hover:bg-gray-300' onClick={onDateClickedToRoute} key={ids[date]}>
-                    {date === 1 ? `${newMonth}월 ${date}일` : `${date}`}
-                  </div>
-                </>
-              )
-            })}
-          </div>
         </div>
       </div>
       {
