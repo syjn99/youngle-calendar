@@ -1,3 +1,5 @@
+import { faEllipsis } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { add, differenceInDays, sub } from 'date-fns'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -20,7 +22,11 @@ const width = [
   "w-7/7",
 ]
 
-let daysList = []
+const top = [
+  "top-first",
+  "top-second",
+  "top-third",
+]
 
 let scheduleId = null
 
@@ -50,8 +56,6 @@ export const Calendar = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [id, setId] = useState("")
-  const [schedulesNum, setSchedulesNum] = useState(0)
-  const [consecSchedulesNum, setConsecSchedulesNum] = useState(0)
 
   const closeModal = () => setModalOpen(!modalOpen)
   const closeDetailModal = () => setDetailOpen(!detailOpen)
@@ -59,6 +63,11 @@ export const Calendar = () => {
 
   // decide how many days to render using calculateMonth module
   const { prevMonth, currentMonth, nextMonth } = calculateMonth()
+  const totalDays = (prevMonth.length + currentMonth.length + nextMonth.length)
+
+  // 렌더링하기 위한 배열들. scheduleNum에는 각 날짜별로 '이미' 렌더링 되어 있는, 즉 multispan 스케줄의 개수를 센다. usedScheduleId에서는 이미 셌던 친구는 안 센다.
+  let scheduleNum = Array.from({ length: totalDays }, () => 0)
+  let usedScheduleId = []
 
   const onDateClicked = (e) => {
     setModalOpen(!modalOpen)
@@ -72,7 +81,40 @@ export const Calendar = () => {
     scheduleId = e.target.id
   }
 
+  // 각 renderedMonth마다 반복되는 작업 수행. scheduleNum과 usedScheduleId 리스트를 관리한다. 이후 스케줄 렌더링 시 필요한
+  // dif와 isSingleDay를 리턴한다.
+
+  const calculateValues = (schedule, id, initValue) => {
+    let dif = differenceInDays(add(schedule.time.endTime, { days: 1 }), sub(new Date(id), { hours: 9 }))
+    const day = (new Date(id)).getDay()
+
+    const isSingleDay = dif <= 1 ? true : false
+
+    if (dif > 1) {
+      if (!(usedScheduleId.includes(schedule.id))) {
+        for (let i = 0; i < dif; i++) {
+          scheduleNum[initValue + i]++
+        }
+        usedScheduleId.push(schedule.id)
+      }
+      if (dif > 6) {
+        dif = 7 - day
+      }
+    } else if (dif === 0) {
+      dif = 1
+    }
+
+    return [
+      dif,
+      isSingleDay
+    ]
+  }
+
+
+
   const renderedPrevMonth = prevMonth.map(function (date) {
+    let cnt = scheduleNum[date - prevMonth[0]]
+
     const isToday = Number.isInteger(date)
     if (!isToday) {
       date = date.date
@@ -91,17 +133,37 @@ export const Calendar = () => {
               return
             }
 
-            let dif = differenceInDays(add(schedule.time.endTime, { days: 1 }), sub(new Date(id), { hours: 9 }))
-            const day = (new Date(id)).getDay()
-            if (dif > 6) {
-              dif = 7 - day
+            cnt++
 
-            } else if (dif === 0) {
-              dif = 1
+            if (cnt === 4) {
+              return (
+                <FontAwesomeIcon className={`relative ${scheduleNum[date + prevMonth.length - 1] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
+              )
+            } else if (cnt > 4) {
+              return
             }
 
+            const isDetailSet = schedule.time.isDetailSet
+
+            let startTime = null
+
+            if (isDetailSet) {
+              startTime = `${schedule.time.startTime.getHours()}:${schedule.time.startTime.getMinutes() === 0 ? '00' : schedule.time.startTime.getMinutes()} `
+            }
+
+
+            const [dif, isSingleDay] = calculateValues(schedule, id, 0)
+
             return (
-              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR} absolute ${width[dif]}`} key={schedule.id} onClick={onScheduleClicked} >
+              <div
+                id={schedule.id}
+                className={`${STYLE_SCHEDULE_NOT_CURR} ${isSingleDay ? `relative ${top[scheduleNum[date - prevMonth[0]]]}` : `absolute ${width[dif]}`} ${isDetailSet ? 'bg-gray-100 text-black hover:text-white' : ''}`}
+                key={schedule.id}
+                onClick={onScheduleClicked}
+              >
+                {isDetailSet ? <div className='inline-block rounded-full bg-indigo-500 w-3 h-3 mr-1'></div> : null}
+                {isDetailSet ? <span className='font-extralight'>{startTime}</span> : null}
+                {schedule.title}
                 {schedule.title}
               </div>
             )
@@ -112,12 +174,15 @@ export const Calendar = () => {
   })
 
   const renderedCurrentMonth = currentMonth.map(function (date) {
+    let cnt = scheduleNum[date + prevMonth.length - 1]
+
     const isToday = Number.isInteger(date)
     if (!isToday) {
       date = date.date
     }
 
     const id = add(new Date(year, month, date), { hours: 9 }).toISOString().substring(0, 10)
+
     return (
       <div id={id} className={`${STYLE_DATE}`} key={date} onClick={onDateClicked}>
         <div className={isToday ? 'my-1' : "my-1 bg-indigo-500 text-white inline-block px-1 rounded-full"}>
@@ -128,33 +193,40 @@ export const Calendar = () => {
         {
           schedules[date] ? schedules[date].map(scheduleId => {
             const schedule = schedulesList.find(schedule => schedule?.id === scheduleId)
+
             if (!schedule) {
               return
             }
 
-            let dif = differenceInDays(add(schedule.time.endTime, { days: 1 }), sub(new Date(id), { hours: 9 }))
-            const day = (new Date(id)).getDay()
-            if (dif > 6) {
-              dif = 7 - day
-              for (let index = 0; index < dif; index++) {
-                if (!daysList.includes(date)) {
-                  daysList.push((new Date(id).getDate()) + index)
-                }
-              }
-            } else if (dif === 0) {
-              dif = 1
-            } else {
-              for (let index = 0; index < dif; index++) {
-                if (!daysList.includes(date)) {
-                  daysList.push((new Date(id).getDate()) + index)
-                }
-              }
+            cnt++
+
+            if (cnt === 4) {
+              return (
+                <FontAwesomeIcon className={`relative ${scheduleNum[date + prevMonth.length - 1] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
+              )
+            } else if (cnt > 4) {
+              return
             }
 
-            const isSingle = (dif === 1 && daysList.includes(date)) ? true : false
+            const isDetailSet = schedule.time.isDetailSet
+
+            let startTime = null
+
+            if (isDetailSet) {
+              startTime = `${schedule.time.startTime.getHours()}:${schedule.time.startTime.getMinutes() === 0 ? '00' : schedule.time.startTime.getMinutes()} `
+            }
+
+            const [dif, isSingleDay] = calculateValues(schedule, id, date + prevMonth.length - 1)
 
             return (
-              <div id={schedule.id} className={`${STYLE_SCHEDULE_CURR} ${isSingle ? 'relative top-em' : `absolute ${width[dif]}`}`} key={schedule.id + date} onClick={onScheduleClicked}>
+              <div
+                id={schedule.id}
+                className={`${STYLE_SCHEDULE_CURR} ${isSingleDay ? `relative ${top[scheduleNum[date + prevMonth.length - 1]]}` : `absolute ${width[dif]}`} ${isDetailSet ? 'bg-gray-100 text-black hover:text-white' : ''}`}
+                key={schedule.id + date}
+                onClick={onScheduleClicked}
+              >
+                {isDetailSet ? <div className='inline-block rounded-full bg-indigo-500 w-3 h-3 mr-1'></div> : null}
+                {isDetailSet ? <span className='font-extralight'>{startTime}</span> : null}
                 {schedule.title}
               </div>
             )
@@ -165,6 +237,8 @@ export const Calendar = () => {
   })
 
   const renderedNextMonth = nextMonth.map(function (date) {
+    let cnt = scheduleNum[date + prevMonth.length + currentMonth.length]
+
     const isToday = Number.isInteger(date)
     if (!isToday) {
       date = date.date
@@ -184,17 +258,37 @@ export const Calendar = () => {
               return
             }
 
-            let dif = differenceInDays(add(schedule.time.endTime, { days: 1 }), sub(new Date(id), { hours: 9 }))
-            const day = (new Date(id)).getDay()
-            if (dif > 6) {
-              dif = 7 - day
-            } else if (dif === 0) {
-              dif = 1
+            cnt++
+
+            if (cnt === 4) {
+              return (
+                <FontAwesomeIcon className={`relative ${scheduleNum[date + prevMonth.length - 1] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
+              )
+            } else if (cnt > 4) {
+              return
             }
 
+            const isDetailSet = schedule.time.isDetailSet
+
+            let startTime = null
+
+            if (isDetailSet) {
+              startTime = `${schedule.time.startTime.getHours()}:${schedule.time.startTime.getMinutes() === 0 ? '00' : schedule.time.startTime.getMinutes()} `
+            }
+
+            const [dif, isSingleDay] = calculateValues(schedule, id, date + prevMonth.length + currentMonth.length)
+
             return (
-              <div id={schedule.id} className={`${STYLE_SCHEDULE_NOT_CURR} absolute ${width[dif]}`} key={schedule.id} onClick={onScheduleClicked} >
+              <div
+                id={schedule.id}
+                className={`${STYLE_SCHEDULE_NOT_CURR} ${isSingleDay ? `relative ${top[scheduleNum[date + prevMonth.length + currentMonth.length - 1]]}` : `absolute ${width[dif]}`} ${isDetailSet ? 'bg-gray-100 text-black hover:text-white' : ''}`}
+                key={schedule.id}
+                onClick={onScheduleClicked}
+              >
+                {isDetailSet ? <div className='inline-block rounded-full bg-indigo-500 w-3 h-3 mr-1'></div> : null}
+                {isDetailSet ? <span className='font-extralight'>{startTime}</span> : null}
                 {schedule.title}
+
               </div>
             )
           }) : ""

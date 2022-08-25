@@ -63,7 +63,12 @@ export const schedulesSlice = createSlice({
       reducer(state, action) {
         const count = state.schedulesList.push(action.payload)
         const newSchedule = state.schedulesList[count - 1]
-        let [startTime, endTime] = [add(newSchedule.time.startTime, { hours: 9 }), add(newSchedule.time.endTime, { hours: 9 })]
+        let [startTime, endTime] = [newSchedule.time.startTime, newSchedule.time.endTime]
+
+        if (startTime.getDate() === 1) {
+          startTime = add(startTime, { hours: 9 })
+          endTime = add(endTime, { hours: 9 })
+        }
 
 
         let firstDay = true
@@ -96,17 +101,13 @@ export const schedulesSlice = createSlice({
 
         }
       },
-      prepare(title, startDate, endDate, description) {
+      prepare(title, time, description) {
         return {
           payload: {
             id: nanoid(),
             title,
             description,
-            time: {
-              isDetailSet: false,
-              startTime: startDate,
-              endTime: endDate,
-            },
+            time,
             repeat: {
             },
           },
@@ -125,9 +126,16 @@ export const schedulesSlice = createSlice({
           return schedule?.id === action.payload.originalId
         })
         state.schedulesList[index] = null
+
         const count = state.schedulesList.push(action.payload.edittedSchedule)
         const newSchedule = state.schedulesList[count - 1]
-        let [startTime, endTime] = [add(newSchedule.time.startTime, { hours: 9 }), add(newSchedule.time.endTime, { hours: 9 })]
+        let [startTime, endTime] = [newSchedule.time.startTime, newSchedule.time.endTime]
+
+        if (startTime.getDate() === 1) {
+          startTime = add(startTime, { hours: 9 })
+          endTime = add(endTime, { hours: 9 })
+        }
+
         let firstDay = true
 
         while (startTime <= endTime) {
@@ -149,18 +157,14 @@ export const schedulesSlice = createSlice({
           firstDay = false
         }
       },
-      prepare(id, title, startDate, endDate, description) {
+      prepare(id, title, time, description) {
         return {
           payload: {
             edittedSchedule: {
               id: nanoid(),
               title,
               description,
-              time: {
-                isDetailSet: false,
-                startTime: startDate,
-                endTime: endDate,
-              },
+              time,
               repeat: {
               },
             },

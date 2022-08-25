@@ -1,10 +1,13 @@
-import { faPen, faClockFour } from '@fortawesome/free-solid-svg-icons'
+import { faPen, faClockFour, faMinus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
 import { formatDate } from '../modules/formatDate'
 import { useDispatch } from 'react-redux'
 import { scheduleAdded } from '../features/schedules/schedulesSlice'
 import { add, sub } from 'date-fns'
+import DetailTimeSet from './DetailTimeSet'
+import { createDetailTimeObject } from '../modules/createDetailTimeObject'
+// import { createDetailTimeObject } from '../modules/createDetailTimeObject'
 
 const AddScheduleForm = ({ targetDate, closeModal }) => {
   const [title, setTitle] = useState("")
@@ -14,6 +17,8 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
   const [endDate, setEndDate] = useState(new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()))
   const [detailTime, setDetailTime] = useState(false)
   const [displayedTime, setDisplayedTime] = useState(`${formatDate(startDate)} - ${formatDate(endDate)}`)
+  const [isTimeSet, setIsTimeSet] = useState(false)
+
 
   const dispatch = useDispatch()
 
@@ -34,13 +39,26 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
 
   const onSubmit = (e) => {
     e.preventDefault()
+    let time = null
+    if (detailTime && isTimeSet) {
+      time = createDetailTimeObject(e.target)
+      if (!time) {
+        return
+      }
+    }
     if (title === "") {
       return
     }
+    if (!time) {
+      time = {
+        isDetailSet: false,
+        startTime: startDate,
+        endTime: endDate,
+      }
+    }
     dispatch(scheduleAdded(
       title,
-      startDate,
-      endDate,
+      time,
       description,
     ))
     closeModal()
@@ -63,28 +81,41 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
         </span>
       </div>
       {detailTime && (
-        <div className='my-3 px-1 flex justify-around text-center'>
-          <label htmlFor='startDate'>
-            <span className='font-bold'>시작 날짜:</span>
-            <input className='block p-2 m-2 border rounded'
-              type="date"
-              id='startDate'
-              value={add(startDate, { hours: 9 }).toISOString().substring(0, 10)}
-              max={add(endDate, { hours: 9 }).toISOString().substring(0, 10)}
-              onChange={onStartDateChange}
-            />
-          </label>
-          <label htmlFor='endDate'>
-            <span className='font-bold'>종료 날짜:</span>
-            <input className='block p-2 m-2 border rounded'
-              type="date"
-              id='endDate'
-              value={add(endDate, { hours: 9 }).toISOString().substring(0, 10)}
-              min={add(startDate, { hours: 9 }).toISOString().substring(0, 10)}
-              onChange={onEndDateChange}
-            />
-          </label>
-        </div>
+        <>
+          <div className='my-3 px-1 flex justify-around text-center'>
+            <label htmlFor='startDate'>
+              <span className='font-bold'>시작 날짜:</span>
+              <input className='block p-2 m-2 border rounded'
+                type="date"
+                id='startDate'
+                value={add(startDate, { hours: 9 }).toISOString().substring(0, 10)}
+                max={add(endDate, { hours: 9 }).toISOString().substring(0, 10)}
+                onChange={onStartDateChange}
+              />
+            </label>
+            <label htmlFor='endDate'>
+              <span className='font-bold'>종료 날짜:</span>
+              <input className='block p-2 m-2 border rounded'
+                type="date"
+                id='endDate'
+                value={add(endDate, { hours: 9 }).toISOString().substring(0, 10)}
+                min={add(startDate, { hours: 9 }).toISOString().substring(0, 10)}
+                onChange={onEndDateChange}
+              />
+            </label>
+          </div>
+          <div onClick={() => setIsTimeSet(!isTimeSet)} className='p-3 hover:bg-gray-100 hover:cursor-pointer'>
+            <input type="checkbox" id='isWholeDay' checked={!isTimeSet} onChange={() => setIsTimeSet(!isTimeSet)} />
+            <label className='hover:cursor-pointer'>하루종일</label>
+          </div>
+          {isTimeSet && (
+            <>
+              <DetailTimeSet isStart={true} />
+              <FontAwesomeIcon icon={faMinus} />
+              <DetailTimeSet isStart={false} />
+            </>
+          )}
+        </>
       )
       }
       <div className='flex justify-left py-4 px-1 rounded'>
@@ -98,7 +129,7 @@ const AddScheduleForm = ({ targetDate, closeModal }) => {
         />
       </div>
       <button className='relative top-5 hover:bg-blue-500 text-blue-700 font-bold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded'>Add Schedule</button>
-    </form>
+    </form >
   )
 }
 
