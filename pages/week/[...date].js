@@ -283,7 +283,7 @@ const WeekView = () => {
       {
         hours.map(function (hour) {
           return (
-            <div className={`border h-12 flex`}>
+            <div className={`border h-12 flex`} key={hour}>
               <span className='border border-y-0 w-1/10 pr-1 h-12 text-right font-light'>{hour}시</span>
               <div className='inline-block w-week-1/7 border border-y-0'></div>
               <div className='inline-block w-week-1/7 border border-y-0'></div>
