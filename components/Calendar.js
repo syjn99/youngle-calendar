@@ -28,8 +28,6 @@ const top = [
   "top-third",
 ]
 
-let scheduleId = null
-
 // define commonly used styles
 const STYLE_DATE = "border text-center transition ease-in-out hover:bg-gray-200"
 const STYLE_SCHEDULE_CURR = 'bg-indigo-500 text-white text-sm mb-px mx-px rounded hover:cursor-pointer hover:bg-indigo-700'
@@ -56,6 +54,8 @@ export const Calendar = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [id, setId] = useState("")
+  const [scheduleId, setScheduleId] = useState("")
+
 
   const closeModal = () => setModalOpen(!modalOpen)
   const closeDetailModal = () => setDetailOpen(!detailOpen)
@@ -77,8 +77,13 @@ export const Calendar = () => {
   const onScheduleClicked = (e) => {
     e.preventDefault()
     e.stopPropagation()
+    setScheduleId(e.target.id)
     setDetailOpen(!detailOpen)
-    scheduleId = e.target.id
+  }
+
+
+  const calculateStartTime = (startTime) => {
+    return `${startTime.getHours()}:${startTime.getMinutes() === 0 ? '00' : startTime.getMinutes()} `
   }
 
   // 각 renderedMonth마다 반복되는 작업 수행. scheduleNum과 usedScheduleId 리스트를 관리한다. 이후 스케줄 렌더링 시 필요한
@@ -137,7 +142,7 @@ export const Calendar = () => {
 
             if (cnt === 4) {
               return (
-                <FontAwesomeIcon className={`relative ${scheduleNum[date + prevMonth.length - 1] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
+                <FontAwesomeIcon className={`relative ${scheduleNum[date - prevMonth[0]] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
               )
             } else if (cnt > 4) {
               return
@@ -148,7 +153,7 @@ export const Calendar = () => {
             let startTime = null
 
             if (isDetailSet) {
-              startTime = `${schedule.time.startTime.getHours()}:${schedule.time.startTime.getMinutes() === 0 ? '00' : schedule.time.startTime.getMinutes()} `
+              startTime = calculateStartTime(schedule.time.startTime)
             }
 
 
@@ -213,7 +218,7 @@ export const Calendar = () => {
             let startTime = null
 
             if (isDetailSet) {
-              startTime = `${schedule.time.startTime.getHours()}:${schedule.time.startTime.getMinutes() === 0 ? '00' : schedule.time.startTime.getMinutes()} `
+              startTime = calculateStartTime(schedule.time.startTime)
             }
 
             const [dif, isSingleDay] = calculateValues(schedule, id, date + prevMonth.length - 1)
@@ -262,7 +267,7 @@ export const Calendar = () => {
 
             if (cnt === 4) {
               return (
-                <FontAwesomeIcon className={`relative ${scheduleNum[date + prevMonth.length - 1] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
+                <FontAwesomeIcon className={`relative ${scheduleNum[date + prevMonth.length + currentMonth.length] ? "top-4" : "top-minus"}`} icon={faEllipsis} />
               )
             } else if (cnt > 4) {
               return
@@ -273,7 +278,7 @@ export const Calendar = () => {
             let startTime = null
 
             if (isDetailSet) {
-              startTime = `${schedule.time.startTime.getHours()}:${schedule.time.startTime.getMinutes() === 0 ? '00' : schedule.time.startTime.getMinutes()} `
+              startTime = calculateStartTime(schedule.time.startTime)
             }
 
             const [dif, isSingleDay] = calculateValues(schedule, id, date + prevMonth.length + currentMonth.length)

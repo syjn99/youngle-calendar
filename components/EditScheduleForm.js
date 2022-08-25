@@ -80,7 +80,7 @@ const EditScheduleForm = ({ schedule, closeModal }) => {
       </div>
       {detailTime && (
         <>
-          <div className='my-3 px-1 flex justify-around text-center'>
+          <div className='my-2 px-1 flex justify-around text-center'>
             <label htmlFor='startDate'>
               <span className='font-bold'>시작 날짜:</span>
               <input className='block p-2 m-2 border rounded'
@@ -126,7 +126,7 @@ const EditScheduleForm = ({ schedule, closeModal }) => {
           onChange={onDescriptionChange}
         />
       </div>
-      <button className='relative top-5 hover:bg-blue-500 text-blue-700 font-bold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded'>Edit Schedule</button>
+      <button className='relative hover:bg-blue-500 text-blue-700 font-bold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded'>Edit Schedule</button>
     </form>
   )
 

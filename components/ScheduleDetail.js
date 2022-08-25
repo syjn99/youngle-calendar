@@ -8,9 +8,18 @@ import EditScheduleForm from './EditScheduleForm'
 
 const ScheduleDetail = ({ scheduleId, closeModal }) => {
   const schedule = useSelector(state => state.schedules.schedulesList.find(schedule => schedule?.id === scheduleId))
+  if (!schedule) {
+    return
+  }
   const [isEdit, setIsEdit] = useState(false)
+  console.log(schedule)
+  const isDetailSet = schedule.time.isDetailSet
 
   const dispatch = useDispatch()
+
+  const calculateStartTime = (startTime) => {
+    return `${startTime.getHours()}:${startTime.getMinutes() === 0 ? '00' : startTime.getMinutes()} `
+  }
 
   const onEditBtnClicked = () => {
     setIsEdit(!isEdit)
@@ -31,6 +40,11 @@ const ScheduleDetail = ({ scheduleId, closeModal }) => {
             {`${formatDate(schedule.time.startTime)} - ${formatDate(schedule.time.endTime)}`}
           </span>
         </div>
+        {isDetailSet ? (
+          <div className='text-lg'>
+            {`${calculateStartTime(schedule.time.startTime)} - ${calculateStartTime(schedule.time.endTime)}`}
+          </div>
+        ) : null}
         <div className='flex justify-left py-4 px-1 rounded'>
           <FontAwesomeIcon className='text-3xl mr-4' icon={faPen} />
           <span className="">
