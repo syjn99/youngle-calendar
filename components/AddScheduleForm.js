@@ -9,7 +9,7 @@ import DetailTimeSet from './DetailTimeSet'
 import { createDetailTimeObject } from '../modules/createDetailTimeObject'
 // import { createDetailTimeObject } from '../modules/createDetailTimeObject'
 
-const AddScheduleForm = ({ targetDate, closeModal, startHour }) => {
+const AddScheduleForm = ({ targetDate, closeModal, startHour, fromDayView }) => {
   if (startHour) {
     console.log(startHour)
   }
@@ -19,9 +19,9 @@ const AddScheduleForm = ({ targetDate, closeModal, startHour }) => {
 
   const [startDate, setStartDate] = useState(new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()))
   const [endDate, setEndDate] = useState(new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()))
-  const [detailTime, setDetailTime] = useState(false)
+  const [detailTime, setDetailTime] = useState(fromDayView ? true : false)
   const [displayedTime, setDisplayedTime] = useState(`${formatDate(startDate)} - ${formatDate(endDate)}`)
-  const [isTimeSet, setIsTimeSet] = useState(false)
+  const [isTimeSet, setIsTimeSet] = useState(fromDayView ? true : false)
 
 
   const dispatch = useDispatch()

@@ -178,7 +178,7 @@ export default function DayView() {
       }
       {modalOpen && (
         <Modal closeModal={() => setModalOpen(prev => !prev)}>
-          <AddScheduleForm targetDate={currentDay} closeModal={() => setModalOpen(prev => !prev)} startHour={startHour} />
+          <AddScheduleForm targetDate={currentDay} closeModal={() => setModalOpen(prev => !prev)} startHour={startHour} fromDayView={true} />
         </Modal>)}
       {
         detailOpen && (

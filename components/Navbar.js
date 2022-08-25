@@ -30,7 +30,7 @@ export const Navbar = () => {
   return (
     <>
       <nav className="h-16 bg-indigo-300 flex justify-between items-center font-bold text-white">
-        <h1 className='bg-indigo-400  m-3 p-2 border'>Youngle Calendar</h1>
+        <h1 className='bg-indigo-400  m-3 p-2 border hover:cursor-pointer shadow hover:bg-indigo-500' onClick={() => router.push('/')}>Youngle Calendar</h1>
         <button className=" bg-indigo-500 hover:bg-indigo-900 py-1 px-2 rounded-full" onClick={() => dispatch(todayMonth())}>오늘</button>
         <button className="text-xl bg-indigo-500 hover:bg-indigo-900 py-1 px-2 rounded-full" onClick={() => dispatch(prevMonth())}> {<FontAwesomeIcon icon={faAngleLeft} />}</button>
         <h2 className='text-xl'>{year}년 {month + 1}월</h2>
